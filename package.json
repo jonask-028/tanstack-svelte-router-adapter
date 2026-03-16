@@ -1,0 +1,69 @@
+{
+  "name": "@tanstack/svelte-router",
+  "version": "0.1.0",
+  "description": "TanStack Router adapter for Svelte 5",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./src/index.ts",
+  "svelte": "./dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sparkie-dev/tanstack-router-svelte-adapter.git"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "svelte": "./src/index.ts",
+      "import": "./dist/index.js"
+    },
+    "./components/*.svelte": {
+      "svelte": "./src/components/*.svelte",
+      "import": "./src/components/*.svelte"
+    },
+    "./ssr/server": {
+      "types": "./src/ssr/server.ts",
+      "import": "./dist/ssr/server.js"
+    },
+    "./ssr/client": {
+      "types": "./src/ssr/client.ts",
+      "import": "./dist/ssr/client.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc && svelte-package -i src -o dist",
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0",
+    "@tanstack/router-core": "^1.100.0",
+    "@tanstack/history": "^1.90.0"
+  },
+  "dependencies": {
+    "tiny-invariant": "^1.3.3",
+    "tiny-warning": "^1.0.3",
+    "isbot": "^5.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/package": "^2.3.0",
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "@tanstack/history": "^1.90.0",
+    "@tanstack/router-core": "^1.100.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/svelte": "^5.3.1",
+    "@testing-library/user-event": "^14.6.1",
+    "@vitest/coverage-v8": "^4.0.18",
+    "jsdom": "^28.0.0",
+    "svelte": "^5.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^4.0.18",
+    "zod": "^4.3.6"
+  }
+}
