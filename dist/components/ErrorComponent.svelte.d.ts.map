@@ -1,0 +1,1 @@
+{"version":3,"file":"ErrorComponent.svelte.d.ts","sourceRoot":"","sources":["../../src/components/ErrorComponent.svelte.ts"],"names":[],"mappings":"AAGC,KAAK,gBAAgB,GAAI;IACtB,KAAK,EAAE,KAAK,CAAC;IACb,KAAK,CAAC,EAAE,MAAM,IAAI,CAAC;CACpB,CAAC;AAqBJ,QAAA,MAAM,cAAc,sDAAwC,CAAC;AAC7D,KAAK,cAAc,GAAG,UAAU,CAAC,OAAO,cAAc,CAAC,CAAC;AACxD,eAAe,cAAc,CAAC"}

@@ -28,14 +28,10 @@ export const createRouter = (options) => {
 // at module-load time for code-split route files.
 // ---------------------------------------------------------------------------
 if (typeof globalThis !== "undefined") {
-    ;
     globalThis.createFileRoute = createFileRoute;
-    ;
     globalThis.createLazyFileRoute = createLazyFileRoute;
 }
 else if (typeof window !== "undefined") {
-    ;
     window.createFileRoute = createFileRoute;
-    ;
     window.createLazyFileRoute = createLazyFileRoute;
 }

@@ -124,5 +124,22 @@ export declare class RouteApi<TId, TRouter extends AnyRouter = RegisteredRouter>
  * Get a type-safe API for accessing route data outside of route components.
  */
 export declare function getRouteApi<TId extends string>(id: TId): RouteApi<TId, AnyRouter>;
+/**
+ * Create a typed route mask. Route masks allow you to display a different URL
+ * in the browser address bar while internally navigating to a different route.
+ *
+ * @example
+ * ```ts
+ * const routeMask = createRouteMask({
+ *   routeTree,
+ *   from: '/posts/$postId',
+ *   to: '/posts',
+ *   params: true,
+ * })
+ * ```
+ */
+export declare function createRouteMask<TRouteTree extends AnyRoute, TFrom extends string, TTo extends string>(opts: {
+    routeTree: TRouteTree;
+} & import("@tanstack/router-core").ToMaskOptions<import("@tanstack/router-core").RouterCore<TRouteTree, "never", boolean>, TFrom, TTo>): import("@tanstack/router-core").RouteMask<TRouteTree>;
 export {};
 //# sourceMappingURL=route.d.ts.map

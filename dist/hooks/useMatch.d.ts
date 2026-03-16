@@ -2,6 +2,9 @@ import type { AnyRouter, RegisteredRouter, RouteById, RouteIds, StrictOrFrom } f
 /**
  * Get the current route match data.
  *
+ * By default, throws if the match is not found (strict mode).
+ * Pass `shouldThrow: false` to return `undefined` instead.
+ *
  * @example
  * ```svelte
  * <script lang="ts">
@@ -10,7 +13,8 @@ import type { AnyRouter, RegisteredRouter, RouteById, RouteIds, StrictOrFrom } f
  * </script>
  * ```
  */
-export declare function useMatch<TRouter extends AnyRouter = RegisteredRouter, TFrom extends RouteIds<TRouter["routeTree"]> = RouteIds<TRouter["routeTree"]>, TStrict extends boolean = true, TSelected = RouteById<TRouter["routeTree"], TFrom>>(opts?: StrictOrFrom<TRouter, TFrom, TStrict> & {
+export declare function useMatch<TRouter extends AnyRouter = RegisteredRouter, TFrom extends RouteIds<TRouter["routeTree"]> = RouteIds<TRouter["routeTree"]>, TStrict extends boolean = true, TThrow extends boolean = true, TSelected = RouteById<TRouter["routeTree"], TFrom>>(opts?: StrictOrFrom<TRouter, TFrom, TStrict> & {
     select?: (match: any) => TSelected;
+    shouldThrow?: TThrow;
 }): TSelected;
 //# sourceMappingURL=useMatch.d.ts.map

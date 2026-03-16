@@ -11,7 +11,7 @@
 import { RouterCore } from "@tanstack/router-core";
 import type { RouterHistory } from "@tanstack/history";
 import type { AnyRoute, CreateRouterFn, TrailingSlashOption } from "@tanstack/router-core";
-import type { RouteComponent, ErrorRouteComponent, NotFoundRouteComponent } from "./route";
+import type { RouteComponent, ErrorRouteComponent, NotFoundRouteComponent } from "./route.js";
 declare module "@tanstack/router-core" {
     interface RouterOptionsExtensions {
         /**

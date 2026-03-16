@@ -19,14 +19,8 @@
 <script lang="ts">
   import { getContext } from "svelte";
   import { ROUTER_CONTEXT_KEY, ROUTER_STATE_KEY } from "../context/keys.js";
-  import {
-    exactPathTest,
-    functionalUpdate,
-  } from "@tanstack/router-core";
-  import type {
-    AnyRouter,
-    RouterState,
-  } from "@tanstack/router-core";
+  import { exactPathTest, functionalUpdate } from "@tanstack/router-core";
+  import type { AnyRouter, RouterState } from "@tanstack/router-core";
   import type { Snippet } from "svelte";
 
   // ---------------------------------------------------------------------------
@@ -223,12 +217,20 @@
     if (!base && !activeStyle && !inactiveStyle) return undefined;
 
     // If all are strings, concatenate
-    if (typeof base === "string" || typeof activeStyle === "string" || typeof inactiveStyle === "string") {
+    if (
+      typeof base === "string" ||
+      typeof activeStyle === "string" ||
+      typeof inactiveStyle === "string"
+    ) {
       return [base, activeStyle, inactiveStyle].filter(Boolean).join("; ");
     }
 
     // If objects, merge
-    return { ...(base as any), ...(activeStyle as any), ...(inactiveStyle as any) };
+    return {
+      ...(base as any),
+      ...(activeStyle as any),
+      ...(inactiveStyle as any),
+    };
   });
 
   // Computed preload values
@@ -244,10 +246,19 @@
   // Filter out Link-specific keys from restProps to avoid passing them to <a>
   function getSafeRestProps() {
     const unsafe = new Set([
-      "params", "search", "hash", "state", "mask",
-      "reloadDocument", "unsafeRelative", "from",
-      "resetScroll", "viewTransition", "startTransition",
-      "hashScrollIntoView", "ignoreBlocker",
+      "params",
+      "search",
+      "hash",
+      "state",
+      "mask",
+      "reloadDocument",
+      "unsafeRelative",
+      "from",
+      "resetScroll",
+      "viewTransition",
+      "startTransition",
+      "hashScrollIntoView",
+      "ignoreBlocker",
     ]);
     const safe: Record<string, any> = {};
     for (const key of Object.keys(restProps)) {
@@ -354,8 +365,14 @@
   onfocus={handleFocus}
   ontouchstart={handleTouchStart}
   {...getSafeRestProps()}
-  {...(() => { const { class: _, style: __, ...rest } = resolvedActiveProps; return rest; })()}
-  {...(() => { const { class: _, style: __, ...rest } = resolvedInactiveProps; return rest; })()}
+  {...(() => {
+    const { class: _, style: __, ...rest } = resolvedActiveProps;
+    return rest;
+  })()}
+  {...(() => {
+    const { class: _, style: __, ...rest } = resolvedInactiveProps;
+    return rest;
+  })()}
 >
   {#if children}
     {@render children({ isActive, isTransitioning })}

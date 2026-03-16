@@ -197,3 +197,23 @@ export class RouteApi extends BaseRouteApi {
 export function getRouteApi(id) {
     return new RouteApi({ id });
 }
+// ---------------------------------------------------------------------------
+// createRouteMask
+// ---------------------------------------------------------------------------
+/**
+ * Create a typed route mask. Route masks allow you to display a different URL
+ * in the browser address bar while internally navigating to a different route.
+ *
+ * @example
+ * ```ts
+ * const routeMask = createRouteMask({
+ *   routeTree,
+ *   from: '/posts/$postId',
+ *   to: '/posts',
+ *   params: true,
+ * })
+ * ```
+ */
+export function createRouteMask(opts) {
+    return opts;
+}

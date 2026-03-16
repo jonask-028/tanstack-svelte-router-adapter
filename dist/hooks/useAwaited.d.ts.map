@@ -1,0 +1,1 @@
+{"version":3,"file":"useAwaited.d.ts","sourceRoot":"","sources":["../../src/hooks/useAwaited.ts"],"names":[],"mappings":"AAMA,MAAM,MAAM,YAAY,CAAC,CAAC,IAAI;IAC5B,OAAO,EAAE,OAAO,CAAC,CAAC,CAAC,CAAC;CACrB,CAAC;AAEF;;;;;;;;;;;;;GAaG;AACH,wBAAgB,UAAU,CAAC,CAAC,EAAE,EAAE,OAAO,EAAE,QAAQ,EAAE,EAAE,YAAY,CAAC,CAAC,CAAC,GAAG,CAAC,CAYvE"}

@@ -14,13 +14,26 @@ export { default as Outlet } from "./components/Outlet.svelte";
 export { default as Navigate } from "./components/Navigate.svelte";
 export { default as Match } from "./components/Match.svelte";
 export { default as Matches } from "./components/Matches.svelte";
+export { default as CatchBoundary } from "./components/CatchBoundary.svelte";
+export { default as CatchNotFound } from "./components/CatchNotFound.svelte";
+export { default as ErrorComponent } from "./components/ErrorComponent.svelte";
+export { default as DefaultGlobalNotFound } from "./components/DefaultGlobalNotFound.svelte";
+export { default as Block } from "./components/Block.svelte";
+export { default as Asset } from "./components/Asset.svelte";
+export { default as HeadContent } from "./components/HeadContent.svelte";
+export { default as Scripts } from "./components/Scripts.svelte";
+export { default as ScriptOnce } from "./components/ScriptOnce.svelte";
+export { default as ScrollRestoration } from "./components/ScrollRestoration.svelte";
+export { default as Await } from "./components/Await.svelte";
+export { default as ClientOnly } from "./components/ClientOnly.svelte";
+export { default as MatchRoute } from "./components/MatchRoute.svelte";
 // ============================================================================
 // Framework-specific classes & factories (Svelte adapter layer)
 // ============================================================================
 // Router
 export { Router, createRouter } from "./router.js";
 // Route definitions
-export { Route, RootRoute, NotFoundRoute, RouteApi, createRoute, createRootRoute, createRootRouteWithContext, rootRouteWithContext, getRouteApi, } from "./route.js";
+export { Route, RootRoute, NotFoundRoute, RouteApi, createRoute, createRootRoute, createRootRouteWithContext, rootRouteWithContext, getRouteApi, createRouteMask, } from "./route.js";
 // File-based routing
 export { FileRoute, LazyRoute, createFileRoute, createLazyFileRoute, createLazyRoute, } from "./fileRoute.js";
 // Link utilities
@@ -40,6 +53,18 @@ export { useLoaderDeps } from "./hooks/useLoaderDeps.js";
 export { useRouteContext } from "./hooks/useRouteContext.js";
 export { useCanGoBack } from "./hooks/useCanGoBack.js";
 export { useMatchRoute } from "./hooks/useMatchRoute.js";
+export { useBlocker } from "./hooks/useBlocker.svelte.js";
+export { useMatches } from "./hooks/useMatches.js";
+export { useParentMatches } from "./hooks/useParentMatches.js";
+export { useChildMatches } from "./hooks/useChildMatches.js";
+export { useTags } from "./hooks/useTags.js";
+export { useScrollRestoration, useElementScrollRestoration, } from "./hooks/useScrollRestoration.js";
+export { useAwaited } from "./hooks/useAwaited.js";
+export { useHydrated } from "./hooks/useHydrated.js";
+// ============================================================================
+// Svelte-specific utilities
+// ============================================================================
+export { lazyRouteComponent } from "./lazyRouteComponent.js";
 // ============================================================================
 // Context
 // ============================================================================
@@ -62,13 +87,31 @@ encode, decode,
 // Utilities
 functionalUpdate, replaceEqualDeep, isPlainObject, isPlainArray, deepEqual, createControlledPromise, 
 // Component types
-componentTypes, lazyFn, SearchParamError, PathParamError, getInitialRouterState, defaultSerializeError, 
+lazyFn, SearchParamError, PathParamError, getInitialRouterState, defaultSerializeError, 
 // Search middleware
 retainSearchParams, stripSearchParams, 
 // Match
 isMatch, 
 // Root route ID
-rootRouteId, } from "@tanstack/router-core";
+rootRouteId, 
+// HTML utilities
+escapeHtml, 
+// Scroll restoration
+setupScrollRestoration, defaultGetScrollRestorationKey, scrollRestorationCache, restoreScroll, handleHashScroll, getCssSelector, 
+// Deferred data
+defer, TSR_DEFERRED_PROMISE, 
+// Search serialization
+defaultParseSearch, defaultStringifySearch, parseSearchWith, stringifySearchWith, createSerializationAdapter, 
+// Rewrites
+composeRewrites, 
+// Redirect safety
+isDangerousProtocol, 
+// Location change info (used by Transitioner logic)
+getLocationChangeInfo, 
+// Matched routes
+getMatchedRoutes, 
+// Trailing slash options
+trailingSlashOptions, } from "@tanstack/router-core";
 // ============================================================================
 // Re-exports from @tanstack/history
 // ============================================================================

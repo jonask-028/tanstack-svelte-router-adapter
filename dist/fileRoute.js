@@ -49,7 +49,9 @@ export class FileRoute {
 export function createFileRoute(path) {
     // Object form: createFileRoute({ component, ... }) — used by virtual routes
     if (typeof path === "object") {
-        return new FileRoute(path, { silent: true }).createRoute(path);
+        return new FileRoute(path, {
+            silent: true,
+        }).createRoute(path);
     }
     return new FileRoute(path, {
         silent: true,
