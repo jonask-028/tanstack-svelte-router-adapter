@@ -188,10 +188,32 @@ describe("Match errorComponent resolution", () => {
 // DefaultGlobalNotFound
 // ---------------------------------------------------------------------------
 describe("DefaultGlobalNotFound", () => {
-  it("should render default 404 content", async () => {
-    // When using a route that always matches but the state has globalNotFound
-    // This is hard to trigger with router API alone, so we test via Matches
-    // by navigating to an unmatched route
+  it("should render NotFoundPage for unmatched routes", async () => {
+    const rootRoute = createRootRoute({
+      notFoundComponent: NotFoundPage,
+    });
+    const indexRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/",
+      component: HomePage,
+    });
+    const routeTree = rootRoute.addChildren([indexRoute]);
+    const router = createRouter({
+      routeTree,
+      history: createMemoryHistory({ initialEntries: ["/nonexistent"] }),
+      defaultNotFoundComponent: NotFoundPage,
+    });
+    await router.load();
+
+    render(TestRouterProvider, { props: { router } });
+
+    await waitFor(() => {
+      expect(screen.getByTestId("not-found-page")).toBeInTheDocument();
+      expect(screen.getByText("404 - Not Found")).toBeInTheDocument();
+    });
+  });
+
+  it("should render home page normally when route matches", async () => {
     const rootRoute = createRootRoute({});
     const indexRoute = createRoute({
       getParentRoute: () => rootRoute,
@@ -202,14 +224,11 @@ describe("DefaultGlobalNotFound", () => {
     const router = createRouter({
       routeTree,
       history: createMemoryHistory({ initialEntries: ["/"] }),
-      // No defaultNotFoundComponent — should use DefaultGlobalNotFound
     });
     await router.load();
 
-    // The router config accepts defaultNotFoundComponent
     expect(router.options.defaultNotFoundComponent).toBeUndefined();
 
-    // Render the home page — should work normally
     render(TestRouterProvider, { props: { router } });
 
     await waitFor(() => {
@@ -222,7 +241,7 @@ describe("DefaultGlobalNotFound", () => {
 // Match — notFoundComponent handling
 // ---------------------------------------------------------------------------
 describe("Match notFoundComponent", () => {
-  it("should use router defaultNotFoundComponent", () => {
+  it("should store defaultNotFoundComponent in router config", () => {
     const rootRoute = createRootRoute({});
     const indexRoute = createRoute({
       getParentRoute: () => rootRoute,
@@ -238,7 +257,7 @@ describe("Match notFoundComponent", () => {
     expect(router.options.defaultNotFoundComponent).toBe(NotFoundPage);
   });
 
-  it("should accept defaultNotFoundComponent in router config and render it", async () => {
+  it("should render matched route when defaultNotFoundComponent is configured but route matches", async () => {
     const rootRoute = createRootRoute({});
     const indexRoute = createRoute({
       getParentRoute: () => rootRoute,
@@ -256,8 +275,8 @@ describe("Match notFoundComponent", () => {
     render(TestRouterProvider, { props: { router } });
 
     await waitFor(() => {
-      // Home page should render fine; NotFoundPage is just configured as fallback
       expect(screen.getByTestId("home-page")).toBeInTheDocument();
+      expect(screen.queryByTestId("not-found-page")).not.toBeInTheDocument();
     });
   });
 });

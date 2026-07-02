@@ -17,7 +17,12 @@ import {
   createRouter,
   redirect,
 } from "../src";
-import { renderRouterToString, renderRouterToStream } from "../src/ssr/server";
+import {
+  renderRouterToString,
+  renderRouterToStream,
+  defaultRenderHandler,
+  defaultStreamHandler,
+} from "../src/ssr/server";
 import TestApp from "./ssr/TestApp.svelte";
 
 // ---------------------------------------------------------------------------
@@ -313,5 +318,256 @@ describe("renderRouterToStream", () => {
     });
 
     expect(response.status).toBe(200);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SSR redirect handling
+// ---------------------------------------------------------------------------
+describe("SSR redirect handling", () => {
+  it("should store redirect on router state when beforeLoad throws redirect in SSR", async () => {
+    const rootRoute = createRootRoute({});
+    const indexRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/",
+      beforeLoad: () => {
+        throw redirect({ to: "/target" } as any);
+      },
+    });
+    const targetRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/target",
+    });
+
+    const routeTree = rootRoute.addChildren([indexRoute, targetRoute]);
+    const router = createRouter({
+      routeTree,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+    router.isServer = true;
+    await router.load();
+
+    // In SSR mode, router stores redirect instead of navigating
+    expect((router.state as any).redirect).toBeInstanceOf(Response);
+    expect((router.state as any).redirect.status).toBe(307);
+    expect(router.state.statusCode).toBe(307);
+  });
+
+  it("should store redirect on router state when loader throws redirect in SSR", async () => {
+    const rootRoute = createRootRoute({});
+    const indexRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/",
+      loader: () => {
+        throw redirect({ to: "/destination", statusCode: 302 } as any);
+      },
+    });
+    const destRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/destination",
+    });
+
+    const routeTree = rootRoute.addChildren([indexRoute, destRoute]);
+    const router = createRouter({
+      routeTree,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+    router.isServer = true;
+    await router.load();
+
+    expect((router.state as any).redirect).toBeInstanceOf(Response);
+    expect((router.state as any).redirect.status).toBe(302);
+    expect(router.state.statusCode).toBe(302);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SSR error status codes
+// ---------------------------------------------------------------------------
+describe("SSR error status codes", () => {
+  it("should render with error state when loader throws during SSR", async () => {
+    const rootRoute = createRootRoute({});
+    const errorRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/",
+      loader: async () => {
+        throw new Error("SSR loader error");
+      },
+    });
+
+    const routeTree = rootRoute.addChildren([errorRoute]);
+    const router = createRouter({
+      routeTree,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+    router.isServer = true;
+    await router.load();
+
+    const match = router.state.matches.find((m: any) => m.routeId === "/");
+    expect(match?.status).toBe("error");
+    expect(match?.error).toBeInstanceOf(Error);
+    expect((match?.error as Error).message).toBe("SSR loader error");
+  });
+
+  it("should still produce a Response when loader errors during SSR string render", async () => {
+    const rootRoute = createRootRoute({});
+    const errorRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/",
+      loader: async () => {
+        throw new Error("SSR render error");
+      },
+    });
+
+    const routeTree = rootRoute.addChildren([errorRoute]);
+    const router = createRouter({
+      routeTree,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+    router.isServer = true;
+    await router.load();
+
+    const response = await renderRouterToString({
+      router,
+      responseHeaders: new Headers(),
+      App: TestApp as any,
+    });
+
+    // Should still return a Response (the error component renders)
+    expect(response).toBeInstanceOf(Response);
+    expect(response.status).toBe(500);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Document assembly
+// ---------------------------------------------------------------------------
+describe("HTML document assembly", () => {
+  async function renderIndexHtml(App?: any) {
+    const rootRoute = createRootRoute({});
+    const indexRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/",
+    });
+    const routeTree = rootRoute.addChildren([indexRoute]);
+    const router = createRouter({
+      routeTree,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+    router.isServer = true;
+    await router.load();
+
+    const response = renderRouterToString({
+      router,
+      responseHeaders: new Headers(),
+      ...(App ? { App } : {}),
+    });
+    return response.text();
+  }
+
+  it("wraps the rendered app in a full HTML document with #__app mount point", async () => {
+    const html = await renderIndexHtml(TestApp);
+    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain("<html>");
+    expect(html).toContain("<head>");
+    expect(html).toContain('<div id="__app">');
+    expect(html).toContain('<meta charset="utf-8" />');
+  });
+
+  it("renders with the built-in RouterServer when no App is provided", async () => {
+    const html = await renderIndexHtml();
+    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain('<div id="__app">');
+  });
+
+  it("defaults Content-Type to text/html when not supplied", async () => {
+    const rootRoute = createRootRoute({});
+    const indexRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/",
+    });
+    const routeTree = rootRoute.addChildren([indexRoute]);
+    const router = createRouter({
+      routeTree,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+    router.isServer = true;
+    await router.load();
+
+    const response = renderRouterToString({
+      router,
+      responseHeaders: new Headers(),
+      App: TestApp as any,
+    });
+    expect(response.headers.get("Content-Type")).toBe(
+      "text/html; charset=utf-8",
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Default handler callbacks
+// ---------------------------------------------------------------------------
+describe("defaultRenderHandler / defaultStreamHandler", () => {
+  async function makeRouter() {
+    const rootRoute = createRootRoute({});
+    const indexRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/",
+    });
+    const routeTree = rootRoute.addChildren([indexRoute]);
+    const router = createRouter({
+      routeTree,
+      history: createMemoryHistory({ initialEntries: ["/"] }),
+    });
+    router.isServer = true;
+    await router.load();
+    return router;
+  }
+
+  it("defaultRenderHandler returns a string HTML Response", async () => {
+    const router = await makeRouter();
+    const response = await defaultRenderHandler({
+      request: new Request("http://localhost/"),
+      router,
+      responseHeaders: new Headers(),
+    } as any);
+    expect(response).toBeInstanceOf(Response);
+    expect(response.status).toBe(200);
+    const html = await response.text();
+    expect(html).toContain("<!DOCTYPE html>");
+  });
+
+  it("defaultStreamHandler returns a streamed HTML Response", async () => {
+    const router = await makeRouter();
+    const response = await defaultStreamHandler({
+      request: new Request("http://localhost/"),
+      router,
+      responseHeaders: new Headers(),
+    } as any);
+    expect(response).toBeInstanceOf(Response);
+    expect(response.body).toBeInstanceOf(ReadableStream);
+    const html = await response.text();
+    expect(html).toContain('<div id="__app">');
+  });
+
+  it("both default handlers produce identical document output", async () => {
+    const routerA = await makeRouter();
+    const stringResponse = await defaultRenderHandler({
+      request: new Request("http://localhost/"),
+      router: routerA,
+      responseHeaders: new Headers(),
+    } as any);
+    const stringHtml = await stringResponse.text();
+
+    const routerB = await makeRouter();
+    const streamResponse = await defaultStreamHandler({
+      request: new Request("http://localhost/"),
+      router: routerB,
+      responseHeaders: new Headers(),
+    } as any);
+    const streamHtml = await streamResponse.text();
+
+    expect(streamHtml).toBe(stringHtml);
   });
 });

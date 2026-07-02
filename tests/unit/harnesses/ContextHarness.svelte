@@ -17,7 +17,7 @@
   import type { AnyRouter, RouterState } from "@tanstack/router-core";
 
   // Test getRouterContext
-  let routerFromContext: AnyRouter | undefined;
+  let routerFromContext = $state<AnyRouter | undefined>(undefined);
   try {
     routerFromContext = getRouterContext();
   } catch {
@@ -25,7 +25,7 @@
   }
 
   // Test getMatchContext
-  let matchIdFromContext: string | undefined;
+  let matchIdFromContext = $state<string | undefined>(undefined);
   try {
     matchIdFromContext = getMatchContext();
   } catch {

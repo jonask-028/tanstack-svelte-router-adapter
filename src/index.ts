@@ -196,6 +196,16 @@ export {
   getMatchedRoutes,
   // Trailing slash options
   trailingSlashOptions,
+  // Redirect parsing
+  parseRedirect,
+  // SSR serialization
+  makeSerovalPlugin,
+  makeSsrSerovalPlugin,
+  defaultSerovalPlugins,
+  // Streaming SSR
+  RawStream,
+  createRawStreamRPCPlugin,
+  createRawStreamDeserializePlugin,
 } from "@tanstack/router-core";
 
 // ============================================================================
@@ -420,6 +430,13 @@ export type {
   RouterEvent,
   // Injected HTML
   InjectedHtmlEntry,
+  // SSR serialization types
+  OnRawStreamCallback,
+  RawStreamHint,
+  RawStreamOptions,
+  // Redirect extended types
+  RedirectOptionsRoute,
+  RedirectFnRoute,
 } from "@tanstack/router-core";
 
 // ============================================================================

@@ -43,7 +43,7 @@
   }
 
   onMount(() => {
-    if (!boundaryEl) return;
+    if (!boundaryEl) return () => {};
 
     // Capture errors from the DOM subtree (synchronous render errors
     // that bubble up as ErrorEvents on the window but originate in our subtree)

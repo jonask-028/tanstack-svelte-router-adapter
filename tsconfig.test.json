@@ -5,7 +5,11 @@
     "noEmit": true,
     "composite": false,
     "declaration": false,
-    "declarationMap": false
+    "declarationMap": false,
+    // Tests live outside `src`, so widen rootDir to the project root to avoid
+    // TS6059 ("not under rootDir") during the in-test typecheck. Safe because
+    // this config only type-checks (noEmit) and never emits build output.
+    "rootDir": "."
   },
   "include": [
     "src/**/*.ts",

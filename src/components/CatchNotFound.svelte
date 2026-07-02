@@ -15,7 +15,7 @@
   import CatchBoundary from "./CatchBoundary.svelte";
 
   let {
-    children,
+    children: childrenSnippet,
     fallback,
   }: {
     children: Snippet;
@@ -40,7 +40,7 @@
 {:else}
   <CatchBoundary {onCatch}>
     {#snippet children()}
-      {@render children()}
+      {@render childrenSnippet()}
     {/snippet}
   </CatchBoundary>
 {/if}

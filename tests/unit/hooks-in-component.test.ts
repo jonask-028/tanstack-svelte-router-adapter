@@ -447,8 +447,8 @@ describe("useLoaderDeps (rendered)", () => {
     render(TestRouterProvider, { props: { router } });
 
     await waitFor(() => {
-      const deps = parseTestIdJSON(screen, "loader-deps");
-      expect(deps).toBeDefined();
+      const deps = parseTestIdJSON(screen, "loader-deps") as any;
+      expect(deps).toEqual({ q: "default" });
     });
   });
 });
@@ -639,6 +639,8 @@ describe("useNavigate reactivity (rendered)", () => {
 
     await waitFor(() => {
       expect(router.state.location.pathname).toBe("/about");
+      // Verify the harness re-renders at the new route
+      expect(screen.getByTestId("has-navigate").textContent).toBe("true");
     });
   });
 });

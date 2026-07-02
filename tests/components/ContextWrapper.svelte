@@ -42,11 +42,11 @@
 
   // Subscribe to router state changes
   // svelte-ignore state_referenced_locally
-  const unsub = routerRef.__store.subscribe(() => {
+  const sub = routerRef.__store.subscribe(() => {
     routerState = routerRef.state;
   });
 
-  onDestroy(unsub);
+  onDestroy(() => sub.unsubscribe());
 </script>
 
 {@render children?.()}

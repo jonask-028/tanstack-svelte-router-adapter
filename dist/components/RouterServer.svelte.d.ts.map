@@ -1,0 +1,1 @@
+{"version":3,"file":"RouterServer.svelte.d.ts","sourceRoot":"","sources":["../../src/components/RouterServer.svelte.ts"],"names":[],"mappings":"AAIA,OAAO,KAAK,EAAE,SAAS,EAAE,MAAM,uBAAuB,CAAC;AAEtD,KAAK,gBAAgB,GAAI;IAAE,MAAM,EAAE,SAAS,CAAA;CAAE,CAAC;AAahD,QAAA,MAAM,YAAY,sDAAwC,CAAC;AAC3D,KAAK,YAAY,GAAG,UAAU,CAAC,OAAO,YAAY,CAAC,CAAC;AACpD,eAAe,YAAY,CAAC"}

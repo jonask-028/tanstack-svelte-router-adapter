@@ -295,14 +295,13 @@ describe("E2E: History navigation", () => {
       expect(screen.getByTestId("about-page")).toBeInTheDocument();
     });
 
-    expect(router.state.location.pathname).toBe("/about");
-
     router.history.back();
     await vi.advanceTimersByTimeAsync(HISTORY_TICK_MS);
     await router.load();
 
     await waitFor(() => {
-      expect(router.state.location.pathname).toBe("/");
+      expect(screen.getByTestId("home-page")).toBeInTheDocument();
+      expect(screen.queryByTestId("about-page")).not.toBeInTheDocument();
     });
 
     vi.useRealTimers();
@@ -328,7 +327,7 @@ describe("E2E: History navigation", () => {
     await router.load();
 
     await waitFor(() => {
-      expect(router.state.location.pathname).toBe("/");
+      expect(screen.getByTestId("home-page")).toBeInTheDocument();
     });
 
     // Go forward
@@ -337,7 +336,8 @@ describe("E2E: History navigation", () => {
     await router.load();
 
     await waitFor(() => {
-      expect(router.state.location.pathname).toBe("/about");
+      expect(screen.getByTestId("about-page")).toBeInTheDocument();
+      expect(screen.queryByTestId("home-page")).not.toBeInTheDocument();
     });
 
     vi.useRealTimers();
@@ -382,22 +382,25 @@ describe("E2E: Error handling", () => {
 // Navigation state
 // ---------------------------------------------------------------------------
 describe("E2E: Router state", () => {
-  it("should update router state after navigation", async () => {
+  it("should update DOM and router state after navigation", async () => {
     const router = buildAppRouter(["/"]);
     await router.load();
     render(TestRouterProvider, { props: { router } });
 
-    expect(router.state.location.pathname).toBe("/");
+    await waitFor(() => {
+      expect(screen.getByTestId("home-page")).toBeInTheDocument();
+    });
 
     await router.navigate({ to: "/about" });
     await router.invalidate();
 
     await waitFor(() => {
+      expect(screen.getByTestId("about-page")).toBeInTheDocument();
       expect(router.state.location.pathname).toBe("/about");
     });
   });
 
-  it("should have correct matches after navigation", async () => {
+  it("should render correct nested route after navigation with params", async () => {
     const router = buildAppRouter(["/"]);
     await router.load();
     render(TestRouterProvider, { props: { router } });
@@ -406,12 +409,8 @@ describe("E2E: Router state", () => {
     await router.invalidate();
 
     await waitFor(() => {
-      const matchIds = router.state.matches.map((m) => m.routeId);
-      expect(matchIds).toContain("/posts/$postId");
-      const postMatch = router.state.matches.find(
-        (m) => m.routeId === "/posts/$postId",
-      );
-      expect(postMatch?.params).toEqual({ postId: "99" });
+      expect(screen.getByTestId("post-page")).toBeInTheDocument();
+      expect(screen.getByTestId("post-id").textContent).toBe("99");
     });
   });
 });

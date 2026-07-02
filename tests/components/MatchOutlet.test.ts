@@ -286,7 +286,7 @@ describe("Matches component", () => {
 // Match — pendingComponent rendering
 // ---------------------------------------------------------------------------
 describe("Match pendingComponent", () => {
-  it("should render pendingComponent while loader is pending", async () => {
+  it("should render pendingComponent while loader is pending then resolve to data component", async () => {
     vi.useFakeTimers();
     let resolveLoader!: (value: unknown) => void;
     const loaderPromise = new Promise((resolve) => {
@@ -320,9 +320,15 @@ describe("Match pendingComponent", () => {
     });
 
     // Resolve the loader
-    resolveLoader({ data: "loaded" });
+    resolveLoader({ message: "Loaded!", count: 7 });
     await loadPromise;
     await vi.advanceTimersByTimeAsync(50);
+
+    // After resolution, the data component should replace the pending component
+    await waitFor(() => {
+      expect(screen.getByTestId("data-page")).toBeInTheDocument();
+      expect(screen.queryByTestId("pending-page")).not.toBeInTheDocument();
+    });
 
     vi.useRealTimers();
   });

@@ -112,7 +112,7 @@
     }
 
     return () => {
-      unsubStore();
+      unsubStore.unsubscribe();
       unsubHistory();
     };
   });

@@ -6,52 +6,101 @@
  * and fails gracefully outside of one.
  */
 import { describe, expect, it, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/svelte";
+import { render, screen, cleanup, waitFor } from "@testing-library/svelte";
 import { createMemoryHistory } from "@tanstack/history";
 import { createRootRoute, createRoute, createRouter } from "../../src";
-import ContextWrapper from "../components/ContextWrapper.svelte";
+import TestRouterProvider from "../components/TestRouterProvider.svelte";
 import UseRouterHarness from "./harnesses/UseRouterHarness.svelte";
+import ContextHarness from "./harnesses/ContextHarness.svelte";
 
 afterEach(cleanup);
 
-/**
- * Helper — creates wrapper + harness rendering.
- * We use the ContextWrapper which manually sets up context,
- * then render ContextHarness inside it to read the context.
- */
-function renderWithContext(initialEntries: string[] = ["/"]) {
-  const rootRoute = createRootRoute({});
-  const indexRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/",
-  });
-  const aboutRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: "/about",
-  });
-  const routeTree = rootRoute.addChildren([indexRoute, aboutRoute]);
-  const router = createRouter({
-    routeTree,
-    history: createMemoryHistory({ initialEntries }),
-  });
-
-  return { router };
-}
-
 describe("context utilities", () => {
   describe("getRouterContext", () => {
-    it("should return the router instance when inside ContextWrapper", async () => {
-      const { router } = renderWithContext();
+    it("should return the router instance inside RouterProvider", async () => {
+      const rootRoute = createRootRoute({ component: ContextHarness });
+      const indexRoute = createRoute({
+        getParentRoute: () => rootRoute,
+        path: "/",
+      });
+      const routeTree = rootRoute.addChildren([indexRoute]);
+      const router = createRouter({
+        routeTree,
+        history: createMemoryHistory({ initialEntries: ["/"] }),
+      });
       await router.load();
 
-      const { container } = render(ContextWrapper, {
-        props: { router },
-        context: new Map(),
-      });
+      render(TestRouterProvider, { props: { router } });
 
-      // ContextWrapper renders children snippet, but we can't nest
-      // a child component easily — test that the wrapper mounts
-      expect(container).toBeTruthy();
+      await waitFor(() => {
+        expect(screen.getByTestId("has-router").textContent).toBe("true");
+      });
+    });
+  });
+
+  describe("getRouterStateContext", () => {
+    it("should return reactive state with correct pathname", async () => {
+      const rootRoute = createRootRoute({ component: ContextHarness });
+      const indexRoute = createRoute({
+        getParentRoute: () => rootRoute,
+        path: "/",
+      });
+      const routeTree = rootRoute.addChildren([indexRoute]);
+      const router = createRouter({
+        routeTree,
+        history: createMemoryHistory({ initialEntries: ["/"] }),
+      });
+      await router.load();
+
+      render(TestRouterProvider, { props: { router } });
+
+      await waitFor(() => {
+        expect(screen.getByTestId("state-pathname").textContent).toBe("/");
+      });
+    });
+
+    it("should return state for /about pathname", async () => {
+      const rootRoute = createRootRoute({ component: ContextHarness });
+      const aboutRoute = createRoute({
+        getParentRoute: () => rootRoute,
+        path: "/about",
+      });
+      const routeTree = rootRoute.addChildren([aboutRoute]);
+      const router = createRouter({
+        routeTree,
+        history: createMemoryHistory({ initialEntries: ["/about"] }),
+      });
+      await router.load();
+
+      render(TestRouterProvider, { props: { router } });
+
+      await waitFor(() => {
+        expect(screen.getByTestId("state-pathname").textContent).toBe("/about");
+      });
+    });
+  });
+
+  describe("getMatchContext", () => {
+    it("should return current match ID inside route component", async () => {
+      const rootRoute = createRootRoute({ component: ContextHarness });
+      const indexRoute = createRoute({
+        getParentRoute: () => rootRoute,
+        path: "/",
+      });
+      const routeTree = rootRoute.addChildren([indexRoute]);
+      const router = createRouter({
+        routeTree,
+        history: createMemoryHistory({ initialEntries: ["/"] }),
+      });
+      await router.load();
+
+      render(TestRouterProvider, { props: { router } });
+
+      await waitFor(() => {
+        // ContextHarness is the root route component, so match ID = root match
+        const matchId = screen.getByTestId("match-id").textContent;
+        expect(matchId).not.toBe("none");
+      });
     });
   });
 
@@ -84,10 +133,7 @@ describe("context utilities", () => {
 
   describe("negative — hooks outside provider", () => {
     it("useRouter should return undefined when called outside provider", () => {
-      // Render UseRouterHarness without wrapping it in ContextWrapper
-      // useRouter({ warn: false }) suppresses the warning and returns undefined
       render(UseRouterHarness);
-
       expect(screen.getByTestId("has-router").textContent).toBe("false");
     });
   });

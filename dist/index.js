@@ -111,7 +111,13 @@ getLocationChangeInfo,
 // Matched routes
 getMatchedRoutes, 
 // Trailing slash options
-trailingSlashOptions, } from "@tanstack/router-core";
+trailingSlashOptions, 
+// Redirect parsing
+parseRedirect, 
+// SSR serialization
+makeSerovalPlugin, makeSsrSerovalPlugin, defaultSerovalPlugins, 
+// Streaming SSR
+RawStream, createRawStreamRPCPlugin, createRawStreamDeserializePlugin, } from "@tanstack/router-core";
 // ============================================================================
 // Re-exports from @tanstack/history
 // ============================================================================

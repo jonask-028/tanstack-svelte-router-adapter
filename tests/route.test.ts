@@ -36,10 +36,12 @@ describe("getRouteApi", () => {
     expect(result).toBeDefined();
   });
 
-  it("redirect should return a redirect object", () => {
+  it("redirect should return a Response with correct status and options", () => {
     const api = getRouteApi("foo");
     const result = api.redirect({ to: "/bar" } as any);
-    expect(result).toBeDefined();
+    expect(result).toBeInstanceOf(Response);
+    expect((result as Response).status).toBe(307);
+    expect((result as any).options.to).toBe("/bar");
   });
 });
 
